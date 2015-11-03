@@ -9,4 +9,42 @@ That said, it was designed out of my frustration with processing and parsing SQL
 Tuple is in very early stage of development. Right now I am focusing on designing the API and interface and less about actual implementation. Any examples shown in this README do not work for real and are there to help explore features and syntaxes.
 
 
+# API
+
+
+
+    results = SQL.execute('SELECT students.id
+    ,  students.name
+    ,  students.email
+    ,  students.gender
+    ,  class_enrollments.id
+    FROM students
+      JOIN class_enrollments ON class_enrollments.student_id = students.id
+    ;')
+    
+    # Option 1
+    students = Tuple::NormalizeSet.new
+    
+    for result in results do
+      students.merge(result, {key: 0, has_many: 4})
+    end
+    
+    # Option 2
+    students = Tuple::NormalizeSet.new
+    students.merge_all(results, {key: 0, has_many: 4})
+    students.reduce(results, {key: 0, has_many: 4})
+    students.collect(results, {key: 0, has_many: 4})
+    
+    # Output
+    
+    assert students[0][0] == 0                    # id
+    assert students[0][1] == 'bob'                # name
+    assert students[0][2] == 'bob@example.com'    # email
+    assert students[0][3] == 'm'                  # gender
+    assert students[0][4] == [0, 4, 8]            # the collapsed class_enrollments as an array
+    
+
+    
+
+
 
